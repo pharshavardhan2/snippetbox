@@ -10,6 +10,7 @@ import (
 	// create alias as _ as compiler complains as we don't use it directly
 	// but init() in driver has to run to register with database/sql
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/pharshavardhan2/snippetbox/internal/models"
 )
 
 // application contains fields for dependency injection
@@ -17,6 +18,7 @@ import (
 type application struct {
 	infoLog  *log.Logger
 	errorLog *log.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
