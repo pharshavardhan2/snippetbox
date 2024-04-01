@@ -11,7 +11,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// allow only "/" path not subtrees(sub paths) of "/"
 	if r.URL.Path != "/" {
 		// sends page not found
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 
@@ -24,17 +24,14 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// create template set with files containing named templates
 	ts, err := template.ParseFiles(templateFiles...)
 	if err != nil {
-		app.errorLog.Print(err.Error())
-		// use named status codes instead of hardcoding
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		app.serverError(w, err)
 		return
 	}
 
 	// write named template "base" to response
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		app.errorLog.Print(err.Error())
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		app.serverError(w, err)
 		return
 	}
 }
@@ -43,7 +40,7 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	// get parameters from url and reject invalid id
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 
@@ -55,7 +52,7 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		// notify which methods are allowed
 		w.Header().Set("Allow", http.MethodPost)
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 
